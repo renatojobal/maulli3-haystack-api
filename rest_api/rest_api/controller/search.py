@@ -56,6 +56,26 @@ def query(request: QueryRequest):
     with concurrency_limiter.run():
         result = _process_request(query_pipeline, request)
         return result
+    
+
+@router.post("/query-advanced", response_model=QueryResponse, response_model_exclude_none=True)
+def query():
+    """
+    This endpoint receive no queries, instead make a preloaded queries for each file.
+    """
+    listOfQueries = [
+        QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
+    ]
+    
+    
+    request = QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
+    
+    
+
+    with concurrency_limiter.run():
+        result = _process_request(query_pipeline, request)
+        return result
+
 
 
 def _process_request(pipeline, request) -> Dict[str, Any]:
