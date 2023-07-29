@@ -13,7 +13,7 @@ RUN apt-get update && \
     git
 
 # Shallow clone Haystack repo, we'll install from the local sources
-RUN git clone --depth=1 --branch=${haystack_version} https://github.com/deepset-ai/haystack.git /opt/haystack
+RUN git clone --depth=1 --branch=${haystack_version} https://github.com/renatojobal/maulli3-haystack-api.git /opt/haystack
 WORKDIR /opt/haystack
 
 # Use a virtualenv we can copy over the next build stage
