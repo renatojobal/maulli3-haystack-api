@@ -159,3 +159,5 @@ haystack/json-schemas
 
 # Uploaded files
 **/file-upload
+cosign.pub
+http_ca.crt

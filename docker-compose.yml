@@ -1,7 +1,7 @@
 services:
 
   haystack-api:
-    image: "deepset/haystack:cpu"
+    image: "renatojobal/haystack:cpu"
     volumes:
       - ./rest_api/rest_api/pipeline:/opt/pipelines
     ports:

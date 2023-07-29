@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://www.deepset.ai/haystack/"><img src="https://raw.githubusercontent.com/deepset-ai/haystack/main/docs/img/haystack_logo_colored.png" alt="Haystack"></a>
+  <a href="https://www.renatojobal.ai/haystack/"><img src="https://raw.githubusercontent.com/deepset-ai/haystack/main/docs/img/haystack_logo_colored.png" alt="Haystack"></a>
 </p>
 
 Haystack is an end-to-end framework that enables you to build powerful and production-ready
@@ -9,12 +9,12 @@ environments.
 
 To start the Docker container binding the TCP port `8000` locally, run:
 ```sh
-docker run -p 8000:8000 deepset/haystack
+docker run -p 8000:8000 renatojobal/haystack
 ```
 
 If you need the container to access other services available in the host, run:
 ```sh
-docker run -p 8000:8000 --network="host" deepset/haystack
+docker run -p 8000:8000 --network="host" renatojobal/haystack
 ```
 
 ## Image Variants
@@ -60,7 +60,7 @@ docker buildx bake base-cpu --set "*.platform=linux/arm64"
 
 # License
 
-View [license information](https://github.com/deepset-ai/haystack/blob/main/LICENSE) for
+View [license information](https://github.com/renatojobal-ai/haystack/blob/main/LICENSE) for
 the software contained in this image.
 
 As with all Docker images, these likely also contain other software which may be under

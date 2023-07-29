@@ -1,7 +1,7 @@
 version: "3"
 services:
   backend:
-    image: deepset/haystack-annotation:latest
+    image: renatojobal/haystack-annotation:latest
     environment:
       NODE_ENV: "production"
       DB_HOSTNAME: "db"

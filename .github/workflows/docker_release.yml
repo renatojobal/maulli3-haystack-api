@@ -9,7 +9,7 @@ on:
       - "v[0-9].[0-9]+.[0-9]+*"
 
 env:
-  DOCKER_REPO_NAME: deepset/haystack
+  DOCKER_REPO_NAME: renatojobal/haystack
 
 jobs:
   build-and-push:
@@ -62,15 +62,15 @@ jobs:
           TAG="base-${{ matrix.target }}-${{ steps.meta.outputs.version }}"
 
           PLATFORM="linux/amd64"
-          VERSION=$(docker run --platform "$PLATFORM" --rm "deepset/haystack:$TAG" python -c"import haystack; print(haystack.__version__)")
-          [[ "$VERSION" = "$EXPECTED_VERSION" ]] || echo "::error 'Haystack version in deepset/haystack:$TAG image for $PLATFORM is different from expected'"
+          VERSION=$(docker run --platform "$PLATFORM" --rm "renatojobal/haystack:$TAG" python -c"import haystack; print(haystack.__version__)")
+          [[ "$VERSION" = "$EXPECTED_VERSION" ]] || echo "::error 'Haystack version in renatojobal/haystack:$TAG image for $PLATFORM is different from expected'"
 
           PLATFORM="linux/arm64"
-          VERSION=$(docker run --platform "$PLATFORM" --rm "deepset/haystack:$TAG" python -c"import haystack; print(haystack.__version__)")
-          [[ "$VERSION" = "$EXPECTED_VERSION" ]] || echo "::error 'Haystack version in deepset/haystack:$TAG image for $PLATFORM is different from expected'"
+          VERSION=$(docker run --platform "$PLATFORM" --rm "renatojobal/haystack:$TAG" python -c"import haystack; print(haystack.__version__)")
+          [[ "$VERSION" = "$EXPECTED_VERSION" ]] || echo "::error 'Haystack version in renatojobal/haystack:$TAG image for $PLATFORM is different from expected'"
 
           # Remove image after test to avoid filling the GitHub runner and prevent its failure
-          docker rmi "deepset/haystack:$TAG"
+          docker rmi "renatojobal/haystack:$TAG"
 
       - name: Build api images
         uses: docker/bake-action@v2
@@ -103,8 +103,8 @@ jobs:
 
       # This step should only run when we release a new minor, so
       # that we can tag the most recent image without the version number.
-      # For example, if the previous step builds `deepset/haystack:cpu-1.8.0`,
-      # this builds `deepset/haystack:cpu`
+      # For example, if the previous step builds `renatojobal/haystack:cpu-1.8.0`,
+      # this builds `renatojobal/haystack:cpu`
       - name: Build api images no version in tag
         uses: docker/bake-action@v2
         if: steps.version.outputs.comparison-result == '>'

@@ -1,5 +1,7 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
+import logging
+import time
 import json
 import shutil
 import uuid
@@ -18,6 +20,13 @@ from rest_api.schema import QueryRequest
 router = APIRouter()
 app: FastAPI = get_app()
 indexing_pipeline: Pipeline = get_pipelines().get("indexing_pipeline", None)
+query_pipeline: Pipeline = get_pipelines().get("query_pipeline", None)
+concurrency_limiter = get_pipelines().get("concurrency_limiter", None)
+
+
+logging.getLogger("haystack").setLevel(LOG_LEVEL)
+logger = logging.getLogger("haystack")
+
 
 
 @as_form
@@ -102,8 +111,8 @@ def analyze_pdf(
     preprocessor_params: PreprocessorParams = Depends(PreprocessorParams.as_form),  # type: ignore
 ):
     """
-    You can use this endpoint to upload a file for indexing
-    (see https://haystack.deepset.ai/guides/rest-api#indexing-documents-in-the-haystack-rest-api-document-store).
+    You can use this endpoint to analyze pdfs from banks. You will receive an JSON object that indicates 
+    some parameters from the bank.
     """
     if not indexing_pipeline:
         raise HTTPException(status_code=501, detail="Indexing Pipeline is not configured.")
@@ -146,6 +155,28 @@ def analyze_pdf(
     listOfQueries = [
         QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
     ]
+
+    with concurrency_limiter.run():
+        result = _process_request(query_pipeline, listOfQueries[0])
+        return result
     
+
+
+def _process_request(pipeline, request) -> Dict[str, Any]:
+    start_time = time.time()
+
+    params = request.params or {}
+    result = pipeline.run(query=request.query, params=params, debug=request.debug)
+
+    # Ensure answers and documents exist, even if they're empty lists
+    if not "documents" in result:
+        result["documents"] = []
+    if not "answers" in result:
+        result["answers"] = []
+
+    logger.info(
+        json.dumps({"request": request, "response": result, "time": f"{(time.time() - start_time):.2f}"}, default=str)
+    )
+    return result
 
 
