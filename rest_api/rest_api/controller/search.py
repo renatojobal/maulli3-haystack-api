@@ -58,7 +58,7 @@ def query(request: QueryRequest):
         return result
     
 
-@router.post("/advanced_query", response_model=QueryResponse, response_model_exclude_none=True)
+@router.post("/advanced-query", response_model=QueryResponse, response_model_exclude_none=True)
 def advanced_query():
     """
     This endpoint receive no queries, instead make a preloaded queries for each file.
