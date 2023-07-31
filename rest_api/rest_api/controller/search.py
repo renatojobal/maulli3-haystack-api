@@ -58,17 +58,17 @@ def query(request: QueryRequest):
         return result
     
 
-@router.post("/query-advanced", response_model=QueryResponse, response_model_exclude_none=True)
-def query():
+@router.post("/advanced_query", response_model=QueryResponse, response_model_exclude_none=True)
+def advanced_query():
     """
     This endpoint receive no queries, instead make a preloaded queries for each file.
     """
     listOfQueries = [
-        QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
+        QueryRequest(query="¿Cuál es el nombre de la compañia?", filters=None, top_k_reader=1, top_k_retriever=1)
     ]
     
     
-    request = QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
+    request = QueryRequest(query="¿Cuál es el nombre de la compañia?", filters=None, top_k_reader=1, top_k_retriever=1)
     
     
 
