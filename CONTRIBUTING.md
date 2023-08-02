@@ -9,6 +9,16 @@ To avoid unnecessary work on either side, please stick to the following process:
 4. Once you have commits to publish, create a draft pull request with the initial sketch of the implementation and ask for feedback. **Do not wait until the feature is complete!** If this is your first pull request and you wonder how to actually create a pull request, checkout [this manual](https://opensource.com/article/19/7/create-pull-request-github).
 5. Verify that all tests in the CI pass (and add new ones if you implement anything new).
 
+## Quick hint
+
+docker run -d -p 9200:9200 -e "discovery.type=single-node" -e "ES_JAVA_OPTS=-Xms128m -Xmx256m" elasticsearch:7.9.2
+
+cd rest_api
+
+gunicorn rest_api.application:app -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker -t 300
+
+
+
 
 ## Setting up your development environment
 

@@ -13,7 +13,7 @@ from haystack import Pipeline
 from haystack.nodes import BaseConverter, PreProcessor
 
 from rest_api.utils import get_app, get_pipelines
-from rest_api.config import FILE_UPLOAD_PATH
+from rest_api.config import FILE_UPLOAD_PATH, LOG_LEVEL
 from rest_api.controller.utils import as_form
 from rest_api.schema import QueryRequest
 

@@ -53,8 +53,17 @@ def query(request: QueryRequest):
     This endpoint receives the question as a string and allows the requester to set
     additional parameters that will be passed on to the Haystack pipeline.
     """
+    logger.info("\n")
+    logger.info("Request: ")
+    logger.info(request)
+    logger.info("\n")
     with concurrency_limiter.run():
         result = _process_request(query_pipeline, request)
+        logger.info("\n")
+        logger.info("Reponse: ")
+        logger.info(result)
+        logger.info("\n")
+
         return result
     
 
@@ -64,54 +73,62 @@ def advanced_query():
     This endpoint receive no queries, instead make a preloaded queries for each file.
     """
     listOfQueries = [
-        QueryRequest(query="¿Cuál es el nombre de la compañia?", filters=None, top_k_reader=1, top_k_retriever=1),
 
-        QueryRequest(query="¿Cúal es el capital intelectual?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los activos intagibles?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los activos valiosos?", filters=None, top_k_reader=1, top_k_retriever=1),
+        # QueryRequest(query="¿Cual es el capital intelectual?" ),
+        # QueryRequest(query="¿Cuales son los activos intagibles?" )
+        # QueryRequest(query="¿Cuales son los activos valiosos?" ),
 
-        QueryRequest(query="¿Cuál es el capital humano?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuál es el directorio de la compañia?", filters=None, top_k_reader=1, top_k_retriever=1),
+        QueryRequest(query="¿Cuál es el capital humano?" ),
+        # QueryRequest(query="¿Cuál es el directorio de la compañia?" ),
 
-        QueryRequest(query="¿Cual es la formación que tienen los empleados?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuál es la política de remuneraciones?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los beneficios al personal?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuál es el reconocimiento a los empleados?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los planes de carrera?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es el clima laboral?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo e sla política de diversidad e inclusión?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuál es la política de salud y seguridad ocupacional?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es la comunicación interna?", filters=None, top_k_reader=1, top_k_retriever=1),
+        # QueryRequest(query="¿Cual es la formación que tienen los empleados?" ),
+        # QueryRequest(query="¿Cuál es la política de remuneraciones?" ),
+        # QueryRequest(query="¿Cuales son los beneficios al personal?" ),
+        # QueryRequest(query="¿Cuál es el reconocimiento a los empleados?" ),
+        # QueryRequest(query="¿Cuales son los planes de carrera?" ),
+        # QueryRequest(query="¿Cómo es el clima laboral?" ),
+        # QueryRequest(query="¿Cómo e sla política de diversidad e inclusión?" ),
+        # QueryRequest(query="¿Cuál es la política de salud y seguridad ocupacional?" ),
+        # QueryRequest(query="¿Cómo es la comunicación interna?" ),
 
-        QueryRequest(query="¿Cómo es el capital estructural?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cúal es la filosofía interna?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es la cultura organizacional?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo se lleva a cabo la transformación digital?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es la seguridad de la información y privacidad de datos?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cúales son los canales de atención?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómoson los sitemas de gestión de calidad?", filters=None, top_k_reader=1, top_k_retriever=1),
+        # QueryRequest(query="¿Cómo es el capital estructural?" ),
+        # QueryRequest(query="¿Cúal es la filosofía interna?" ),
+        # QueryRequest(query="¿Cómo es la cultura organizacional?" ),
+        # QueryRequest(query="¿Cómo se lleva a cabo la transformación digital?" ),
+        # QueryRequest(query="¿Cómo es la seguridad de la información y privacidad de datos?" ),
+        # QueryRequest(query="¿Cúales son los canales de atención?" ),
+        # QueryRequest(query="¿Cómoson los sitemas de gestión de calidad?" ),
 
-
-
-        QueryRequest(query="¿Cómo es el capital relacional?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cúales son los socios estratégicos?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los clientes?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los proveedeores", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son los accionistas?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es el cumplimineto de normas e impuestos?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuál es la política ambiental?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuáles son los programas de educación financiera?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo se fomenta el empleo?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cuales son las acciones por la comunidad?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Cómo es la reputación de la empresa?", filters=None, top_k_reader=1, top_k_retriever=1),
-        QueryRequest(query="¿Qué premios o reconocimientos ha obtenido la empresa?", filters=None, top_k_reader=1, top_k_retriever=1),
+        # QueryRequest(query="¿Cómo es el capital relacional?" ),
+        # QueryRequest(query="¿Cúales son los socios estratégicos?" ),
+        # QueryRequest(query="¿Cuales son los clientes?" ),
+        # QueryRequest(query="¿Cuales son los proveedeores" ),
+        # QueryRequest(query="¿Cuales son los accionistas?" ),
+        # QueryRequest(query="¿Cómo es el cumplimineto de normas e impuestos?" ),
+        # QueryRequest(query="¿Cuál es la política ambiental?" ),
+        # QueryRequest(query="¿Cuáles son los programas de educación financiera?" ),
+        # QueryRequest(query="¿Cómo se fomenta el empleo?" ),
+        # QueryRequest(query="¿Cuales son las acciones por la comunidad?" ),
+        # QueryRequest(query="¿Cómo es la reputación de la empresa?" ),
+        # QueryRequest(query="¿Qué premios o reconocimientos ha obtenido la empresa?" )
     ]
     
-    for request in listOfQueries:
+    all_queries = []
 
-        with concurrency_limiter.run():
+
+    with concurrency_limiter.run():
+
+        for request in listOfQueries:
             result = _process_request(query_pipeline, request)
-            return result
+            all_queries.append(result)
+            
+
+        logger.info("\n")
+        logger.info("Reponse: ")
+        logger.info(all_queries)
+        logger.info("\n")
+
+        return all_queries
 
 
 
