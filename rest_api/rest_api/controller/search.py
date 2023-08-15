@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 import logging
 import time
@@ -67,50 +67,51 @@ def query(request: QueryRequest):
         return result
     
 
-@router.post("/advanced_query", response_model=QueryResponse, response_model_exclude_none=True)
+@router.post("/advanced_query", response_model=List[QueryResponse], response_model_exclude_none=True)
 def advanced_query():
     """
     This endpoint receive no queries, instead make a preloaded queries for each file.
     """
+
     listOfQueries = [
 
-        # QueryRequest(query="¿Cual es el capital intelectual?" ),
-        # QueryRequest(query="¿Cuales son los activos intagibles?" )
-        # QueryRequest(query="¿Cuales son los activos valiosos?" ),
+        QueryRequest(query="¿Cual es el capital intelectual?" ),
+        QueryRequest(query="¿Cuales son los activos intagibles?" ),
+        QueryRequest(query="¿Cuales son los activos valiosos?" ),
 
         QueryRequest(query="¿Cuál es el capital humano?" ),
-        # QueryRequest(query="¿Cuál es el directorio de la compañia?" ),
+        QueryRequest(query="¿Cuál es el directorio de la compañia?" ),
 
-        # QueryRequest(query="¿Cual es la formación que tienen los empleados?" ),
-        # QueryRequest(query="¿Cuál es la política de remuneraciones?" ),
-        # QueryRequest(query="¿Cuales son los beneficios al personal?" ),
-        # QueryRequest(query="¿Cuál es el reconocimiento a los empleados?" ),
-        # QueryRequest(query="¿Cuales son los planes de carrera?" ),
-        # QueryRequest(query="¿Cómo es el clima laboral?" ),
-        # QueryRequest(query="¿Cómo e sla política de diversidad e inclusión?" ),
-        # QueryRequest(query="¿Cuál es la política de salud y seguridad ocupacional?" ),
-        # QueryRequest(query="¿Cómo es la comunicación interna?" ),
+        QueryRequest(query="¿Cual es la formación que tienen los empleados?" ),
+        QueryRequest(query="¿Cuál es la política de remuneraciones?" ),
+        QueryRequest(query="¿Cuales son los beneficios al personal?" ),
+        QueryRequest(query="¿Cuál es el reconocimiento a los empleados?" ),
+        QueryRequest(query="¿Cuales son los planes de carrera?" ),
+        QueryRequest(query="¿Cómo es el clima laboral?" ),
+        QueryRequest(query="¿Cómo e sla política de diversidad e inclusión?" ),
+        QueryRequest(query="¿Cuál es la política de salud y seguridad ocupacional?" ),
+        QueryRequest(query="¿Cómo es la comunicación interna?" ),
 
-        # QueryRequest(query="¿Cómo es el capital estructural?" ),
-        # QueryRequest(query="¿Cúal es la filosofía interna?" ),
-        # QueryRequest(query="¿Cómo es la cultura organizacional?" ),
-        # QueryRequest(query="¿Cómo se lleva a cabo la transformación digital?" ),
-        # QueryRequest(query="¿Cómo es la seguridad de la información y privacidad de datos?" ),
-        # QueryRequest(query="¿Cúales son los canales de atención?" ),
-        # QueryRequest(query="¿Cómoson los sitemas de gestión de calidad?" ),
+        QueryRequest(query="¿Cómo es el capital estructural?" ),
+        QueryRequest(query="¿Cúal es la filosofía interna?" ),
+        QueryRequest(query="¿Cómo es la cultura organizacional?" ),
+        QueryRequest(query="¿Cómo se lleva a cabo la transformación digital?" ),
+        QueryRequest(query="¿Cómo es la seguridad de la información y privacidad de datos?" ),
+        QueryRequest(query="¿Cúales son los canales de atención?" ),
+        QueryRequest(query="¿Cómoson los sitemas de gestión de calidad?" ),
 
-        # QueryRequest(query="¿Cómo es el capital relacional?" ),
-        # QueryRequest(query="¿Cúales son los socios estratégicos?" ),
-        # QueryRequest(query="¿Cuales son los clientes?" ),
-        # QueryRequest(query="¿Cuales son los proveedeores" ),
-        # QueryRequest(query="¿Cuales son los accionistas?" ),
-        # QueryRequest(query="¿Cómo es el cumplimineto de normas e impuestos?" ),
-        # QueryRequest(query="¿Cuál es la política ambiental?" ),
-        # QueryRequest(query="¿Cuáles son los programas de educación financiera?" ),
-        # QueryRequest(query="¿Cómo se fomenta el empleo?" ),
-        # QueryRequest(query="¿Cuales son las acciones por la comunidad?" ),
-        # QueryRequest(query="¿Cómo es la reputación de la empresa?" ),
-        # QueryRequest(query="¿Qué premios o reconocimientos ha obtenido la empresa?" )
+        QueryRequest(query="¿Cómo es el capital relacional?" ),
+        QueryRequest(query="¿Cúales son los socios estratégicos?" ),
+        QueryRequest(query="¿Cuales son los clientes?" ),
+        QueryRequest(query="¿Cuales son los proveedeores" ),
+        QueryRequest(query="¿Cuales son los accionistas?" ),
+        QueryRequest(query="¿Cómo es el cumplimineto de normas e impuestos?" ),
+        QueryRequest(query="¿Cuál es la política ambiental?" ),
+        QueryRequest(query="¿Cuáles son los programas de educación financiera?" ),
+        QueryRequest(query="¿Cómo se fomenta el empleo?" ),
+        QueryRequest(query="¿Cuales son las acciones por la comunidad?" ),
+        QueryRequest(query="¿Cómo es la reputación de la empresa?" ),
+        QueryRequest(query="¿Qué premios o reconocimientos ha obtenido la empresa?")
     ]
     
     all_queries = []
@@ -129,7 +130,6 @@ def advanced_query():
         logger.info("\n")
 
         return all_queries
-
 
 
 def _process_request(pipeline, request) -> Dict[str, Any]:
