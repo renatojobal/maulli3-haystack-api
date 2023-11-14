@@ -15,8 +15,8 @@ from haystack.pipelines import Pipeline
 def basic_faq_pipeline():
     document_store = ElasticsearchDocumentStore(
         host="localhost",
-        username="",
-        password="",
+        username="elastic",
+        password="kCcYDahrdw_4dnIo3fNE",
         index="document",
         embedding_field="question_emb",
         embedding_dim=384,

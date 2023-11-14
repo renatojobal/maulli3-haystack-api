@@ -15,7 +15,7 @@ from haystack.pipelines import Pipeline
 
 def basic_qa_pipeline():
     # Initialize a DocumentStore
-    document_store = ElasticsearchDocumentStore(host="localhost", username="", password="", index="document")
+    document_store = ElasticsearchDocumentStore(host="localhost", username="elastic", password="kCcYDahrdw_4dnIo3fNE", index="document")
 
     # fetch, pre-process and write documents
     doc_dir = "data/basic_qa_pipeline"

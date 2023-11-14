@@ -156,3 +156,61 @@ world know that you use Haystack!
 -   [PostHog](https://github.com/PostHog/max-ai#readme)
 -   [Rakuten](https://www.rakuten.com/)
 -   [Sooth.ai](https://www.deepset.ai/blog/advanced-neural-search-with-sooth-ai)
+
+## Local development
+
+### Backend
+
+#### Datastore
+Prerequisites:
+
+1. Install docker
+
+```bash
+docker pull docker.elastic.co/elasticsearch/elasticsearch:7.17.15
+```
+
+```bash
+sudo sysctl -w vm.max_map_count=262144
+```
+
+```bash
+docker run -p 127.0.0.1:9200:9200 -p 127.0.0.1:9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.17.15
+```
+
+#### Rest api
+
+```bash
+python3 -m venv venv
+```  
+
+```bash
+pip install --upgrade pip
+```
+  
+```bash
+source venv/bin/activate
+```  
+  
+```bash
+pip install -e '.[docstores,audio,crawler,preprocessing,ocr,ray,dev]'
+```  
+  
+```bash
+cd rest_api
+```  
+  
+```bash
+pip install -e '.[dev]'
+```  
+  
+```bash
+sudo apt-get install gunicorn
+```  
+  
+```bash
+sudo apt-get install unicorn
+```  
+
+### Frontend
+
