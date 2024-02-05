@@ -153,7 +153,7 @@ def analyze_pdf(
     # The queries will be various question about the file's content
 
     listOfQueries = [
-        QueryRequest(query="What is the name of the company?", filters=None, top_k_reader=1, top_k_retriever=1)
+        QueryRequest(query="¿Cuál es el nombre del banco?", filters=None, top_k_reader=1, top_k_retriever=1)
     ]
 
     with concurrency_limiter.run():
