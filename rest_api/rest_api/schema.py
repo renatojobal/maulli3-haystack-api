@@ -31,6 +31,14 @@ class QueryRequest(RequestBaseModel):
     params: Optional[dict] = None
     debug: Optional[bool] = False
 
+class AdvancedQueryRequest(RequestBaseModel):
+    """
+    This is the request schema for the advanced query endpoint.
+    Similar to QueryRequest, but it receives a list of strings.
+    """
+    queries: List[QueryRequest]
+    params: Optional[dict] = None
+    debug: Optional[bool] = False
 
 class FilterRequest(RequestBaseModel):
     filters: Optional[Dict[str, Union[PrimitiveType, List[PrimitiveType], Dict[str, PrimitiveType]]]] = None
@@ -57,4 +65,9 @@ class QueryResponse(BaseModel):
     answers: List[Answer] = []
     documents: List[Document] = []
     results: Optional[List[str]] = None
+    debug: Optional[Dict] = Field(None, alias="_debug")
+
+class AdvancedQueryResponse(BaseModel):
+    queries: List[str]
+    results: List[QueryResponse]
     debug: Optional[Dict] = Field(None, alias="_debug")
