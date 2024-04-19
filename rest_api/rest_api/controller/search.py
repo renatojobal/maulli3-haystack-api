@@ -53,16 +53,9 @@ def query(request: QueryRequest):
     This endpoint receives the question as a string and allows the requester to set
     additional parameters that will be passed on to the Haystack pipeline.
     """
-    logger.info("\n")
-    logger.info("Request: ")
-    logger.info(request)
-    logger.info("\n")
     with concurrency_limiter.run():
         result = _process_request(query_pipeline, request)
-        logger.info("\n")
-        logger.info("Reponse: ")
-        logger.info(result)
-        logger.info("\n")
+
 
         return result
     
@@ -82,11 +75,6 @@ def advanced_query(request: AdvancedQueryRequest):
         for request in listOfQueries:
             result = _process_request(query_pipeline, request)
             all_queries.append(result)
-            
-        logger.info("\n")
-        logger.info("Reponse: ")
-        logger.info(all_queries)
-        logger.info("\n")
 
         return all_queries
 
@@ -102,7 +90,42 @@ def _process_request(pipeline, request) -> Dict[str, Any]:
     if not "answers" in result:
         result["answers"] = []
 
+    # Some times the answer array has the first answer as empty strings, like this:
+    #         [
+    #   {
+    #     "query": "anual investment",
+    #     "answers": [
+    #       {
+    #         "answer": "",
+    #         "type": "extractive",
+    #         "score": 0.5707650763317043,
+    #         "offsets_in_document": [
+    #           {
+    #             "start": 0,
+    #             "end": 0
+    #           }
+    #         ],
+    #         "offsets_in_context": [
+    #           {
+    #             "start": 0,
+    #             "end": 0
+    #           }
+    #         ],
+    #         "meta": {}
+    #       },...
+    #       so we need to remove it
+    #   Here purge that empty strings answers
+
+    new_answers = []
+    for answer in result["answers"]:
+        if answer.answer != "":
+            new_answers.append(answer)
+
+    result["answers"] = new_answers
+
+    logger.info("\n")
     logger.info(
-        json.dumps({"request": request, "response": result, "time": f"{(time.time() - start_time):.2f}"}, default=str)
+        json.dumps({"request": request, "time": f"{(time.time() - start_time):.2f}"}, default=str)
     )
+    logger.info("\n")
     return result
