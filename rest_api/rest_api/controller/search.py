@@ -65,67 +65,39 @@ def advanced_query(request: AdvancedQueryRequest):
     """
     This endpoint receive no queries, instead make a preloaded queries for each file.
     """
-
     listOfQueries = request.queries
     
     all_queries = []
 
     with concurrency_limiter.run():
-
         for request in listOfQueries:
             result = _process_request(query_pipeline, request)
             all_queries.append(result)
 
         return all_queries
 
-def _process_request(pipeline, request) -> Dict[str, Any]:
+
+def _process_request(pipeline, request: QueryRequest) -> Dict[str, Any]:
     start_time = time.time()
 
+    # Prepare params for the pipeline. Merge with request.params if it exists.
     params = request.params or {}
+    if request.pdf_name:
+        # Assuming the Retriever node needs the PDF name to filter documents
+        if 'Retriever' not in params:
+            params['Retriever'] = {}
+        # Here you might need to define how the PDF name should be used as a filter
+        # For example, using 'pdf_name' as a key in the metadata
+        params['Retriever']['filters'] = {'pdf_name': request.pdf_name}
+
+    # Execute the query through the pipeline
     result = pipeline.run(query=request.query, params=params, debug=request.debug)
 
-    # Ensure answers and documents exist, even if they're empty lists
-    if not "documents" in result:
-        result["documents"] = []
-    if not "answers" in result:
-        result["answers"] = []
+    # Remove empty answers, if any
+    result["answers"] = [answer for answer in result.get("answers", []) if answer.answer.strip()]
 
-    # Some times the answer array has the first answer as empty strings, like this:
-    #         [
-    #   {
-    #     "query": "anual investment",
-    #     "answers": [
-    #       {
-    #         "answer": "",
-    #         "type": "extractive",
-    #         "score": 0.5707650763317043,
-    #         "offsets_in_document": [
-    #           {
-    #             "start": 0,
-    #             "end": 0
-    #           }
-    #         ],
-    #         "offsets_in_context": [
-    #           {
-    #             "start": 0,
-    #             "end": 0
-    #           }
-    #         ],
-    #         "meta": {}
-    #       },...
-    #       so we need to remove it
-    #   Here purge that empty strings answers
+    # Log the processing time
+    logger.info(f"Processed query in {(time.time() - start_time):.2f} seconds")
 
-    new_answers = []
-    for answer in result["answers"]:
-        if answer.answer != "":
-            new_answers.append(answer)
-
-    result["answers"] = new_answers
-
-    logger.info("\n")
-    logger.info(
-        json.dumps({"request": request, "time": f"{(time.time() - start_time):.2f}"}, default=str)
-    )
-    logger.info("\n")
     return result
+

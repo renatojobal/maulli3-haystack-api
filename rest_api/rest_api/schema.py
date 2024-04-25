@@ -9,35 +9,26 @@ from pydantic import BaseConfig
 
 from haystack.schema import Answer, Document
 
-
 BaseConfig.arbitrary_types_allowed = True
 BaseConfig.json_encoders = {
     np.ndarray: lambda x: x.tolist(),
     pd.DataFrame: lambda x: [x.columns.tolist()] + x.values.tolist(),
 }
 
-
 PrimitiveType = Union[str, int, float, bool]
-
 
 class RequestBaseModel(BaseModel):
     class Config:
-        # Forbid any extra fields in the request to avoid silent failures
         extra = Extra.forbid
-
 
 class QueryRequest(RequestBaseModel):
     query: str
-    params: Optional[dict] = None
+    pdf_name: Optional[str] = Field(None, description="PDF name to be used for the query")
+    params: Optional[Dict[str, PrimitiveType]] = None
     debug: Optional[bool] = False
 
 class AdvancedQueryRequest(RequestBaseModel):
-    """
-    This is the request schema for the advanced query endpoint.
-    Similar to QueryRequest, but it receives a list of strings.
-    """
     queries: List[QueryRequest]
-    params: Optional[dict] = None
     debug: Optional[bool] = False
 
 class FilterRequest(RequestBaseModel):
