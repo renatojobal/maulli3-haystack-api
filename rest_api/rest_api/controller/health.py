@@ -67,7 +67,7 @@ class HealthResponse(BaseModel):
 @router.get("/health", response_model=HealthResponse, status_code=200)
 def get_health_status():
     """
-    This endpoint allows external systems to monitor the health of the Haystack REST API.
+    This endpoint allows external systems to monitor the health of the Maulli3 REST API.
     """
 
     gpus: List[GPUInfo] = []

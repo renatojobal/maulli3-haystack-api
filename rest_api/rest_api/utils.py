@@ -22,7 +22,7 @@ def get_app() -> FastAPI:
 
     from rest_api.config import ROOT_PATH
 
-    app = FastAPI(title="Haystack REST API", debug=True, version=haystack_version, root_path=ROOT_PATH)
+    app = FastAPI(title="Maulli3 REST API", debug=True, version=haystack_version, root_path=ROOT_PATH)
 
     # Creates the router for the API calls
     from rest_api.controller import file_upload, search, feedback, document, health

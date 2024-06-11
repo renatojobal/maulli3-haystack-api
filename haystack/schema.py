@@ -512,7 +512,7 @@ class Label:
         """
         Object used to represent label/feedback in a standardized way within Haystack.
         This includes labels from dataset like SQuAD, annotations from labeling tools,
-        or, user-feedback from the Haystack REST API.
+        or, user-feedback from the Maulli3 REST API.
 
         :param query: the question (or query) for finding answers.
         :param document:
