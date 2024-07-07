@@ -1,0 +1,10 @@
+farm-haystack[all]==1.26.0
+fastapi<1
+uvicorn<1
+python-multipart<1
+pynvml
+psutil
+httpx
+pytest
+pytest-cov
+pymupdf
