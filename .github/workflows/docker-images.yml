@@ -52,13 +52,15 @@ jobs:
         run: |
           sudo snap install doctl
 
+      - name: Connect doctl to Docker
+        run: |
+          sudo snap connect doctl:dot-docker
+
       - name: Log in to DigitalOcean Container Registry
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_HUB_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_HUB_TOKEN }}
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
         run: |
-          echo "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" | doctl auth init -t
+          doctl auth init --access-token ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           doctl registry login --expiry-seconds 3600
 
       - name: Build and push Docker image to DigitalOcean
