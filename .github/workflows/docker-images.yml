@@ -9,8 +9,10 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  test:
     runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ job.status }}
 
     steps:
       - name: Checkout repository
@@ -28,12 +30,62 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
+        id: test
         run: |
           . venv/bin/activate
           pytest
+        continue-on-error: true
+
+      - name: Set output if tests passed
+        id: set-output
+        run: echo "::set-output name=passed::true"
+        if: success()
+
+  build:
+    needs: test
+    if: needs.test.outputs.passed == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      image_sha: ${{ steps.build.outputs.image_sha }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        id: build
+        run: |
+          docker build -t renatojobal/maulli3-api:latest .
+          IMAGE_SHA=$(docker images -q renatojobal/maulli3-api:latest)
+          echo "::set-output name=image_sha::$IMAGE_SHA"
+
+      - name: Save Docker image as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image
+          path: |
+            $(docker save renatojobal/maulli3-api:latest -o image.tar)
+          if-no-files-found: error
+
+  push-to-docker-hub:
+    needs: build
+    if: needs.test.outputs.passed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -41,46 +93,47 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build and push Docker image to Docker Hub
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: renatojobal/maulli3-api:latest
+      - name: Push Docker image to Docker Hub
+        run: docker push renatojobal/maulli3-api:latest
 
-      # Install doctl.
+  push-to-digital-ocean:
+    needs: build
+    if: needs.test.outputs.passed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+
+      - name: Load Docker image
+        run: docker load -i image.tar
+
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      # Build a Docker image of your application in your registry and tag the image with the $GITHUB_SHA.
-      - name: Build container image
-        run: docker build -t ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7) .
-
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
 
       - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+        run: |
+          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+          docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
 
-      # Deploy to DigitalOCcean Kubernetes.
       - name: Update deployment file
-        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yml
 
       - name: Save DigitalOcean kubeconfig with short-lived credentials
         run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
-
-      # If you haven't already integrated with your registry and only want workloads in a particular namespace to be able to pull
-      # from your registry, uncomment the next two commands.
-      #- name: Upload credentials of your registry to your DigitalOcean Kubernetes cluster
-      #  run: doctl registry kubernetes-manifest | kubectl apply -f -
-
-      #- name: Reference the secret you just uploaded as an imagePullSecrets
-      #  run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-<your-registry-name>`\"}]}'"
 
       - name: Deploy to DigitalOcean Kubernetes
         run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yml
 
       - name: Verify deployment
-        run: kubectl rollout status deployment/maulli3-app
+        run: kubectl rollout status deployment/maulli3-api
