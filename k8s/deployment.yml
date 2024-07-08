@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maulli3-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: maulli3-api
+  template:
+    metadata:
+      labels:
+        app: maulli3-api
+    spec:
+      containers:
+      - name: maulli3-api
+        image: renatojobal/maulli3-api:latest
+        ports:
+        - containerPort: 8000
