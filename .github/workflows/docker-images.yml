@@ -48,24 +48,39 @@ jobs:
           push: true
           tags: renatojobal/maulli3-api:latest
 
+      # Install doctl.
       - name: Install doctl
-        run: |
-          sudo snap install doctl
-
-      - name: Connect doctl to Docker
-        run: |
-          sudo snap connect doctl:dot-docker
-
-      - name: Log in to DigitalOcean Container Registry
-        env:
-          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-        run: |
-          doctl auth init --access-token ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          doctl registry login --expiry-seconds 3600
-
-      - name: Build and push Docker image to DigitalOcean
-        uses: docker/build-push-action@v3
+        uses: digitalocean/action-doctl@v2
         with:
-          context: .
-          push: true
-          tags: registry.digitalocean.com/maulli3-container-registry/maulli3-api:latest
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # Build a Docker image of your application in your registry and tag the image with the $GITHUB_SHA.
+      - name: Build container image
+        run: docker build -t ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+
+      # Deploy to DigitalOCcean Kubernetes.
+      - name: Update deployment file
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/config/deployment.yml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+
+      # If you haven't already integrated with your registry and only want workloads in a particular namespace to be able to pull
+      # from your registry, uncomment the next two commands.
+      #- name: Upload credentials of your registry to your DigitalOcean Kubernetes cluster
+      #  run: doctl registry kubernetes-manifest | kubectl apply -f -
+
+      #- name: Reference the secret you just uploaded as an imagePullSecrets
+      #  run: "kubectl patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"registry-<your-registry-name>`\"}]}'"
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yml
+
+      - name: Verify deployment
+        run: kubectl rollout status deployment/maulli3-app
