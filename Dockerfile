@@ -31,7 +31,6 @@ WORKDIR /app
 RUN python3.10 -m venv --system-site-packages /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r /app/requirements.txt
@@ -59,7 +58,6 @@ RUN addgroup --gid 1001 $SERVICE_NAME && \
     mkdir -p /var/log/$SERVICE_NAME && \
     chown $SERVICE_NAME:$SERVICE_NAME /var/log/$SERVICE_NAME
 
-
 # Create a folder for the /file-upload API endpoint with write permissions for the service user only
 RUN mkdir -p /opt/file-upload && chown $SERVICE_NAME:$SERVICE_NAME /opt/file-upload && chmod 700 /opt/file-upload
 
@@ -67,6 +65,9 @@ RUN mkdir -p /opt/file-upload && chown $SERVICE_NAME:$SERVICE_NAME /opt/file-upl
 ENV FILE_UPLOAD_PATH="/opt/file-upload"
 
 ENV TIKA_LOG_PATH="/var/log/$SERVICE_NAME/"
+
+# Instalar pdftotext al final para aprovechar la caché de capas anteriores
+RUN apt-get update && apt-get install -y poppler-utils && rm -rf /var/lib/apt/lists/*
 
 # The uvicorn server runs on port 8000, and it needs to be accessible from outside the container.
 EXPOSE 8000
