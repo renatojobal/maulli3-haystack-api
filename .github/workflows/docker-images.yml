@@ -11,8 +11,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    outputs:
-      passed: ${{ job.status }}
 
     steps:
       - name: Checkout repository
@@ -30,23 +28,13 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
-        id: test
         run: |
           . venv/bin/activate
           pytest
-        continue-on-error: true
-
-      - name: Set output if tests passed
-        id: set-output
-        run: echo "::set-output name=passed::true"
-        if: success()
 
   build:
     needs: test
-    if: needs.test.outputs.passed == 'true'
     runs-on: ubuntu-latest
-    outputs:
-      image_sha: ${{ steps.build.outputs.image_sha }}
 
     steps:
       - name: Checkout repository
@@ -59,8 +47,7 @@ jobs:
         id: build
         run: |
           docker build -t renatojobal/maulli3-api:latest .
-          IMAGE_SHA=$(docker images -q renatojobal/maulli3-api:latest)
-          echo "::set-output name=image_sha::$IMAGE_SHA"
+          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
 
       - name: Save Docker image as artifact
         uses: actions/upload-artifact@v2
@@ -68,11 +55,11 @@ jobs:
           name: docker-image
           path: |
             $(docker save renatojobal/maulli3-api:latest -o image.tar)
+            $(docker save ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7) -o image_do.tar)
           if-no-files-found: error
 
   push-to-docker-hub:
-    needs: build
-    if: needs.test.outputs.passed == 'true'
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     steps:
@@ -97,8 +84,7 @@ jobs:
         run: docker push renatojobal/maulli3-api:latest
 
   push-to-digital-ocean:
-    needs: build
-    if: needs.test.outputs.passed == 'true'
+    needs: [test, build]
     runs-on: ubuntu-latest
 
     steps:
@@ -111,7 +97,7 @@ jobs:
           name: docker-image
 
       - name: Load Docker image
-        run: docker load -i image.tar
+        run: docker load -i image_do.tar
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -122,9 +108,7 @@ jobs:
         run: doctl registry login --expiry-seconds 1200
 
       - name: Push image to DigitalOcean Container Registry
-        run: |
-          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
-          docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+        run: docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yml
