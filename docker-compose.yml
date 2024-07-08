@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   haystack-api:
-    build: .
+    image: renatojobal/maulli3-api:latest
     volumes:
       - .:/app
     ports:
