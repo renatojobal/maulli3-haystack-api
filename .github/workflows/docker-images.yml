@@ -44,11 +44,12 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker image
-        run: docker build -t maulli3-app:${{ github.sha }} .
+        run: |
+          docker build -t renatojobal/maulli3-api:latest .
+          docker save -o image.tar renatojobal/maulli3-api:latest
 
       - name: Save Docker image as artifact
-        run: docker save maulli3-app:${{ github.sha }} -o image.tar
-      - uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: docker-image
           path: image.tar
@@ -65,7 +66,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: docker-image
-          path: image.tar
 
       - name: Load Docker image
         run: docker load -i image.tar
@@ -77,9 +77,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push Docker image to Docker Hub
-        run: |
-          docker tag maulli3-app:${{ github.sha }} renatojobal/maulli3-api:latest
-          docker push renatojobal/maulli3-api:latest
+        run: docker push renatojobal/maulli3-api:latest
 
   push-to-digital-ocean:
     needs: [test, build]
@@ -93,7 +91,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: docker-image
-          path: image.tar
 
       - name: Load Docker image
         run: docker load -i image.tar
@@ -106,9 +103,9 @@ jobs:
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
 
-      - name: Push Docker image to DigitalOcean
+      - name: Tag and Push Docker image to DigitalOcean
         run: |
-          docker tag maulli3-app:${{ github.sha }} ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
           docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
