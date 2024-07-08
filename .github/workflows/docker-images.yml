@@ -44,19 +44,14 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Docker image
-        id: build
-        run: |
-          docker build -t renatojobal/maulli3-api:latest .
-          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+        run: docker build -t maulli3-app:${{ github.sha }} .
 
       - name: Save Docker image as artifact
-        uses: actions/upload-artifact@v2
+        run: docker save maulli3-app:${{ github.sha }} -o image.tar
+      - uses: actions/upload-artifact@v2
         with:
           name: docker-image
-          path: |
-            $(docker save renatojobal/maulli3-api:latest -o image.tar)
-            $(docker save ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7) -o image_do.tar)
-          if-no-files-found: error
+          path: image.tar
 
   push-to-docker-hub:
     needs: [test, build]
@@ -70,6 +65,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: docker-image
+          path: image.tar
 
       - name: Load Docker image
         run: docker load -i image.tar
@@ -81,7 +77,9 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Push Docker image to Docker Hub
-        run: docker push renatojobal/maulli3-api:latest
+        run: |
+          docker tag maulli3-app:${{ github.sha }} renatojobal/maulli3-api:latest
+          docker push renatojobal/maulli3-api:latest
 
   push-to-digital-ocean:
     needs: [test, build]
@@ -95,9 +93,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: docker-image
+          path: image.tar
 
       - name: Load Docker image
-        run: docker load -i image_do.tar
+        run: docker load -i image.tar
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -107,8 +106,10 @@ jobs:
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 1200
 
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+      - name: Push Docker image to DigitalOcean
+        run: |
+          docker tag maulli3-app:${{ github.sha }} ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
+          docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update deployment file
         run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yml
