@@ -55,6 +55,35 @@ jobs:
           name: docker-image
           path: /tmp/myimage.tar
 
+  deploy:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Load image
+        run: |
+          docker load --input /tmp/myimage.tar
+          docker image ls -a
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
+
+      - name: Deploy to DigitalOcean Droplet
+        run: |
+          scp -r docker-compose.yml root@104.248.239.237:/root/
+          ssh root@104.248.239.237 "docker-compose down && docker-compose up -d"
+
   push-to-docker-hub:
     needs: [test, build]
     runs-on: ubuntu-latest
@@ -82,47 +111,3 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: docker push renatojobal/maulli3-api:latest
-
-  push-to-digital-ocean:
-    needs: [test, build]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docker-image
-          path: /tmp
-
-      - name: Load image
-        run: |
-          docker load --input /tmp/myimage.tar
-          docker image ls -a
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Log in to DigitalOcean Container Registry
-        run: doctl registry login --expiry-seconds 7200
-
-      - name: Tag and Push Docker image to DigitalOcean
-        run: |
-          docker tag renatojobal/maulli3-api:latest ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
-          docker push ${{ secrets.REGISTRY_NAME }}/maulli3-app:$(echo $GITHUB_SHA | head -c7)
-
-      - name: Update deployment file
-        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/maulli3-app:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yml
-
-      - name: Save DigitalOcean kubeconfig with short-lived credentials
-        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
-
-      - name: Deploy to DigitalOcean Kubernetes
-        run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yml
-
-      - name: Verify deployment
-        run: kubectl rollout status deployment/maulli3-api
