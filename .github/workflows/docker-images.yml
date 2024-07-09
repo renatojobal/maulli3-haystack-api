@@ -79,6 +79,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
 
+      - name: Add SSH key to the agent
+        run: ssh-add ${{ secrets.DO_SSH_PRIVATE_KEY }}
+
+      # Check if the ssh key is added
+      - name: Check SSH key
+        run: ssh-add -L
+
       - name: Clone repository on remote server
         run: |
           ssh root@104.248.239.237 "cd /app && \
