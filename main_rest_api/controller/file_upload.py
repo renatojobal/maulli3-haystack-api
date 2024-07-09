@@ -12,10 +12,10 @@ from pydantic import BaseModel
 from haystack import Pipeline
 from haystack.nodes import BaseConverter, PreProcessor
 
-from rest_api.utils import get_app, get_pipelines
-from rest_api.config import FILE_UPLOAD_PATH, LOG_LEVEL
-from rest_api.controller.utils import as_form
-from rest_api.schema import QueryRequest
+from main_rest_api.utils import get_app, get_pipelines
+from main_rest_api.config import FILE_UPLOAD_PATH, LOG_LEVEL
+from main_rest_api.controller.utils import as_form
+from main_rest_api.schema import QueryRequest
 
 router = APIRouter()
 app: FastAPI = get_app()

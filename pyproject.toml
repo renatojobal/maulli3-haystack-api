@@ -40,12 +40,12 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/deepset-ai/haystack/tree/main/rest_api#readme"
+Documentation = "https://github.com/deepset-ai/haystack/tree/main_rest_api#readme"
 Issues = "https://github.com/deepset-ai/haystack/issues"
-Source = "https://github.com/deepset-ai/haystack/tree/main/rest_api"
+Source = "https://github.com/deepset-ai/haystack/tree/main_rest_api"
 
 [tool.hatch.version]
-path = "rest_api/__about__.py"
+path = "main_rest_api/__about__.py"
 
 [tool.hatch.build.targets.sdist]
 [tool.hatch.build.targets.wheel]
@@ -56,7 +56,7 @@ dependencies = [
   "pytest-cov",
 ]
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=rest_api --cov=tests"
+cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=main_rest_api --cov=tests"
 no-cov = "cov --no-cov"
 
 [[tool.hatch.envs.test.matrix]]
@@ -65,7 +65,7 @@ python = ["37", "38", "39", "310"]
 [tool.coverage.run]
 branch = true
 parallel = true
-omit = ["rest_api/__about__.py"]
+omit = ["main_rest_api/__about__.py"]
 
 [tool.coverage.report]
 exclude_lines = [

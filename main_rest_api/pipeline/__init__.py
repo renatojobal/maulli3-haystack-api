@@ -8,7 +8,7 @@ from haystack.pipelines.base import Pipeline
 from haystack.document_stores import FAISSDocumentStore, InMemoryDocumentStore
 from haystack.errors import PipelineConfigError
 
-from rest_api.controller.utils import RequestLimiter
+from main_rest_api.controller.utils import RequestLimiter
 
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def _get_pipeline_doc_store(pipeline, pipeline_name):
 
 def setup_pipelines() -> Dict[str, Any]:
     # Re-import the configuration variables
-    from rest_api import config  # pylint: disable=reimported
+    from main_rest_api import config  # pylint: disable=reimported
 
     pipelines = {}
 

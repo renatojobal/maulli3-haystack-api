@@ -3,8 +3,8 @@ from fastapi.routing import APIRoute
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.cors import CORSMiddleware
 
-from rest_api.pipeline import setup_pipelines
-from rest_api.controller.errors.http_error import http_error_handler
+from main_rest_api.pipeline import setup_pipelines
+from main_rest_api.controller.errors.http_error import http_error_handler
 
 
 app = None
@@ -19,12 +19,12 @@ def get_app() -> FastAPI:
     if app:
         return app
 
-    from rest_api.config import ROOT_PATH
+    from main_rest_api.config import ROOT_PATH
 
     app = FastAPI(title="Maulli3 REST API", debug=True, version="0.0.1", root_path=ROOT_PATH)
 
     # Creates the router for the API calls
-    from rest_api.controller import file_upload, search, feedback, document, health
+    from main_rest_api.controller import file_upload, search, feedback, document, health
 
     router = APIRouter()
     router.include_router(search.router, tags=["search"])

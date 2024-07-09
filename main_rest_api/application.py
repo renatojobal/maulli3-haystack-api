@@ -1,7 +1,7 @@
 import logging
 
 import uvicorn
-from rest_api.utils import get_app, get_pipelines
+from main_rest_api.utils import get_app, get_pipelines
 
 
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")

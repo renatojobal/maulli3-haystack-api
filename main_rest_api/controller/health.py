@@ -12,8 +12,8 @@ from fastapi import FastAPI, APIRouter
 
 import haystack
 
-from rest_api.utils import get_app
-from rest_api.config import LOG_LEVEL
+from main_rest_api.utils import get_app
+from main_rest_api.config import LOG_LEVEL
 
 logging.getLogger("haystack").setLevel(LOG_LEVEL)
 logger = logging.getLogger("haystack")

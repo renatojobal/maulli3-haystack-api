@@ -21,8 +21,8 @@ from haystack.errors import PipelineSchemaError
 from haystack.schema import Label, FilterType
 from haystack.nodes.file_converter import BaseConverter
 
-from rest_api.pipeline import _load_pipeline
-from rest_api.utils import get_app
+from main_rest_api.pipeline import _load_pipeline
+from main_rest_api.utils import get_app
 
 # Disable telemetry reports when running tests
 posthog.disabled = True
@@ -325,7 +325,7 @@ def test_file_upload_with_wrong_meta(client):
 
 
 def test_query_with_no_filter(client):
-    with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+    with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
         # `run` must return a dictionary containing a `query` key
         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
         response = client.post(url="/query", json={"query": TEST_QUERY})
@@ -336,7 +336,7 @@ def test_query_with_no_filter(client):
 
 # def test_query_with_one_filter(client):
 #     params = {"TestRetriever": {"filters": {"test_key": ["test_value"]}}}
-#     with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+#     with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
 #         # `run` must return a dictionary containing a `query` key
 #         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
 #         response = client.post(url="/query", json={"query": TEST_QUERY, "params": params})
@@ -347,7 +347,7 @@ def test_query_with_no_filter(client):
 
 # def test_query_with_one_global_filter(client):
 #     params = {"filters": {"test_key": ["test_value"]}}
-#     with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+#     with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
 #         # `run` must return a dictionary containing a `query` key
 #         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
 #         response = client.post(url="/query", json={"query": TEST_QUERY, "params": params})
@@ -358,7 +358,7 @@ def test_query_with_no_filter(client):
 
 # def test_query_with_filter_list(client):
 #     params = {"TestRetriever": {"filters": {"test_key": ["test_value", "another_value"]}}}
-#     with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+#     with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
 #         # `run` must return a dictionary containing a `query` key
 #         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
 #         response = client.post(url="/query", json={"query": TEST_QUERY, "params": params})
@@ -368,7 +368,7 @@ def test_query_with_no_filter(client):
 
 
 def test_query_with_no_documents_and_no_answers(client):
-    with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+    with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
         # `run` must return a dictionary containing a `query` key
         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
         response = client.post(url="/query", json={"query": TEST_QUERY})
@@ -383,7 +383,7 @@ def test_query_with_no_documents_and_no_answers(client):
 #     Ensure items of params can be other types than dictionary, see
 #     https://github.com/deepset-ai/haystack/issues/2656
 #     """
-#     with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+#     with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
 #         # `run` must return a dictionary containing a `query` key
 #         mocked_pipeline.run.return_value = {"query": TEST_QUERY}
 #         request_body = {
@@ -398,7 +398,7 @@ def test_query_with_no_documents_and_no_answers(client):
 
 
 def test_query_with_embeddings(client):
-    with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+    with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
         # `run` must return a dictionary containing a `query` key
         mocked_pipeline.run.return_value = {
             "query": TEST_QUERY,
@@ -423,7 +423,7 @@ def test_query_with_embeddings(client):
 
 
 def test_query_with_dataframe(client):
-    with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+    with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
         # `run` must return a dictionary containing a `query` key
         mocked_pipeline.run.return_value = {
             "query": TEST_QUERY,
@@ -461,7 +461,7 @@ def test_query_with_dataframe(client):
 
 
 def test_query_with_prompt_node(client):
-    with mock.patch("rest_api.controller.search.query_pipeline") as mocked_pipeline:
+    with mock.patch("main_rest_api.controller.search.query_pipeline") as mocked_pipeline:
         # `run` must return a dictionary containing a `query` key
         mocked_pipeline.run.return_value = {
             "query": TEST_QUERY,
@@ -571,10 +571,10 @@ def test_get_feedback_malformed_query(client, feedback):
 
 
 def test_get_health_check(client):
-    with mock.patch("rest_api.controller.health.os") as os:
+    with mock.patch("main_rest_api.controller.health.os") as os:
         os.cpu_count.return_value = 4
         os.getpid.return_value = int(2345)
-        with mock.patch("rest_api.controller.health.pynvml") as pynvml:
+        with mock.patch("main_rest_api.controller.health.pynvml") as pynvml:
             pynvml.nvmlDeviceGetCount.return_value = 2
             pynvml.nvmlDeviceGetHandleByIndex.return_value = "device"
             pynvml.nvmlDeviceGetMemoryInfo.return_value = Mock(total=34359738368)
@@ -584,7 +584,7 @@ def test_get_health_check(client):
                 Mock(pid=int(3456), usedGpuMemory=2000000000),
             ]
             pynvml.nvmlDeviceGetUtilizationRates.return_value = Mock(gpu=45)
-            with mock.patch("rest_api.controller.health.psutil") as psutil:
+            with mock.patch("main_rest_api.controller.health.psutil") as psutil:
                 psutil.virtual_memory.return_value = Mock(total=34359738368)
                 psutil.Process.return_value = Mock(
                     cpu_percent=Mock(return_value=200), memory_percent=Mock(return_value=75)
