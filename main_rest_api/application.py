@@ -6,8 +6,8 @@ from main_rest_api.utils import get_app, get_pipelines
 
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
 logger = logging.getLogger(__name__)
-logging.getLogger("elasticsearch").setLevel(logging.DEBUG)
-logging.getLogger("haystack").setLevel(logging.DEBUG)
+logging.getLogger("elasticsearch").setLevel(logging.INFO)
+logging.getLogger("haystack").setLevel(logging.INFO)
 
 
 app = get_app()
