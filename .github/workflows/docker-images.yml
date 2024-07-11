@@ -79,20 +79,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
 
-      - name: Add SSH key to the agent
-        run: ssh-add ${{ secrets.DO_SSH_PRIVATE_KEY }}
-
-      # Check if the ssh key is added
       - name: Check SSH key
         run: ssh-add -L
 
       - name: Clone repository on remote server
         run: |
-          ssh root@142.93.56.66 "cd /home/renatojobal/Documents/Tesis/Maulli3-Project && \
-          if [ -d maulli3-haystack-api ]; then \
-            cd maulli3-haystack-api && git pull; \
+          ssh root@142.93.56.66 "cd /home/renatojobal/Documents/Tesis/Maulli3-Project/maulli3-haystack-api && \
+          if [ -d .git ]; then \
+            git pull; \
           else \
-            git clone https://github.com/renatojobal/maulli3-haystack-api.git; \
+            git clone https://github.com/renatojobal/maulli3-haystack-api.git .; \
           fi"
 
       - name: Deploy to DigitalOcean Droplet
