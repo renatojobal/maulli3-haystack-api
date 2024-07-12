@@ -82,6 +82,9 @@ jobs:
       - name: Check SSH key
         run: ssh-add -L
 
+      - name: Add host to known_hosts
+        run: ssh-keyscan -H 142.93.56.66 >> ~/.ssh/known_hosts
+
       - name: Clone repository on remote server
         run: |
           ssh renatojobalin@142.93.56.66 "cd /home/renatojobal/Documents/Tesis/Maulli3-Project/maulli3-haystack-api && \
