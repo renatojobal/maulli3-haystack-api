@@ -96,7 +96,7 @@ jobs:
 
       - name: Deploy to DigitalOcean Droplet
         run: |
-          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app/maulli3-haystack-api && docker-compose down && docker-compose up -d"
+          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app/maulli3-haystack-api && docker compose down && docker compose up -d"
 
   push-to-docker-hub:
     needs: [test, build]
