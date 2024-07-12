@@ -87,7 +87,7 @@ jobs:
 
       - name: Clone repository on remote server
         run: |
-          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app/maulli3-haystack-api && \
+          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app && \
           if [ -d maulli3-haystack-api ]; then \
             cd maulli3-haystack-api && git pull; \
           else \
