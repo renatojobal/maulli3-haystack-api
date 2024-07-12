@@ -79,9 +79,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
 
-      - name: Add SSH key to the agent
-        run: ssh-add ${{ secrets.DO_SSH_PRIVATE_KEY }}
-
       - name: Check SSH key
         run: ssh-add -L
 
