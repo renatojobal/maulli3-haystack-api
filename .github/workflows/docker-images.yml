@@ -87,7 +87,7 @@ jobs:
 
       - name: Clone repository on remote server
         run: |
-          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/Documents/Tesis/Maulli3-Project/maulli3-haystack-api && \
+          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app/maulli3-haystack-api && \
           if [ -d maulli3-haystack-api ]; then \
             cd maulli3-haystack-api && git pull; \
           else \
@@ -96,7 +96,7 @@ jobs:
 
       - name: Deploy to DigitalOcean Droplet
         run: |
-          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/Documents/Tesis/Maulli3-Project/maulli3-haystack-api && docker-compose down && docker-compose up -d"
+          ssh renatojobalin@142.93.56.66 "cd /home/renatojobalin/app/maulli3-haystack-api && docker-compose down && docker-compose up -d"
 
   push-to-docker-hub:
     needs: [test, build]
